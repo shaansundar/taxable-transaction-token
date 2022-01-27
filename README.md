@@ -1,30 +1,42 @@
-# Taxable Transaction Token
-The simple ERC20 token collects a percentage of tax with every transaction that occurs. This is aimed to be a replacement of generic taxation systems! 
-## 🏄‍♂️ Quick Start
+# Advanced Sample Hardhat Project
 
-Prerequisites: [Node](https://nodejs.org/en/download/) plus [Yarn](https://classic.yarnpkg.com/en/docs/install/) and [Git](https://git-scm.com/downloads)
+This project demonstrates an advanced Hardhat use case, integrating other tools commonly used alongside Hardhat in the ecosystem.
 
-> clone/fork this repository:
+The project comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts. It also comes with a variety of other tools, preconfigured to work with the project code.
 
-```bash
-git clone https://github.com/shaansundar/taxable-transaction-token.git
+Try running some of the following tasks:
+
+```shell
+npx hardhat accounts
+npx hardhat compile
+npx hardhat clean
+npx hardhat test
+npx hardhat node
+npx hardhat help
+REPORT_GAS=true npx hardhat test
+npx hardhat coverage
+npx hardhat run scripts/deploy.js
+node scripts/deploy.js
+npx eslint '**/*.js'
+npx eslint '**/*.js' --fix
+npx prettier '**/*.{json,sol,md}' --check
+npx prettier '**/*.{json,sol,md}' --write
+npx solhint 'contracts/**/*.sol'
+npx solhint 'contracts/**/*.sol' --fix
 ```
 
-> install and start your Hardhat chain:
+# Etherscan verification
 
-```bash
-yarn install
-yarn chain
+To try out Etherscan verification, you first need to deploy a contract to an Ethereum network that's supported by Etherscan, such as Ropsten.
+
+In this project, copy the .env.example file to a file named .env, and then edit it to fill in the details. Enter your Etherscan API key, your Ropsten node URL (eg from Alchemy), and the private key of the account which will send the deployment transaction. With a valid .env file in place, first deploy your contract:
+
+```shell
+hardhat run --network ropsten scripts/deploy.js
 ```
 
-> in a second terminal window, start your frontend:
+Then, copy the deployment address and paste it in to replace `DEPLOYED_CONTRACT_ADDRESS` in this command:
 
-```bash
-yarn start
-```
-
-> in a third terminal window, deploy your contract:
-
-```bash
-yarn deploy
+```shell
+npx hardhat verify --network ropsten DEPLOYED_CONTRACT_ADDRESS "Hello, Hardhat!"
 ```
