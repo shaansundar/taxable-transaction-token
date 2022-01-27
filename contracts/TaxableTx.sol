@@ -41,6 +41,7 @@ contract TaxableTx is Context, IERC20, IERC20Metadata {
 
     string private _name;
     string private _symbol;
+    uint8 private _taxPercent;
     address private _escrow;
     address public owner;
 
@@ -53,8 +54,10 @@ contract TaxableTx is Context, IERC20, IERC20Metadata {
      * All two of these values are immutable: they can only be set once during
      * construction.
      */
-    constructor(address owner__, address escrow__, uint256 amount ,string memory name_, string memory symbol_) {
+    constructor(address owner__, address escrow__, uint256 amount, uint8 taxPercent ,string memory name_, string memory symbol_) {
+        require(taxPercent < 100, "Taxation cannot be greater than 99%");
         _name = name_;
+        _taxPercent = taxPercent;
         _symbol = symbol_;
         owner = owner__;
         _escrow = escrow__;
@@ -116,8 +119,9 @@ contract TaxableTx is Context, IERC20, IERC20Metadata {
      * - the caller must have a balance of at least `amount`.
      */
     function transfer(address recipient, uint256 amount) public virtual override returns (bool) {
-        _transfer(_msgSender(), recipient, (amount * 90)/100 );
-        _transfer(_msgSender(), _escrow, (amount * 10)/100 );
+        require(balanceOf(msg.sender)>=amount,"Not Enough Tokens");
+        _transfer(_msgSender(), _escrow, (amount * _taxPercent)/100 );
+        _transfer(_msgSender(), recipient, (amount * (100 - _taxPercent ))/100 );
         return true;
     }
 
@@ -171,9 +175,8 @@ contract TaxableTx is Context, IERC20, IERC20Metadata {
                 _approve(sender, _msgSender(), currentAllowance - amount);
             }
         }
-
-        _transfer(sender, recipient, amount);
-
+        _transfer(sender, _escrow, ((amount * _taxPercent)/100));
+        _transfer(sender, recipient, ((amount * (100 - _taxPercent))/100));
         return true;
     }
 

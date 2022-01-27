@@ -8,8 +8,7 @@ describe("TaxableTX Tests", function () {
   beforeEach(async function () {
     [owner, addr1, addr2, escrow] = await ethers.getSigners();
     const TaxableTX = await ethers.getContractFactory("TaxableTx");
-    deployedTaxableTX = await TaxableTX.deploy(owner.address, escrow.address, 1000, "NewTax", "NTX");
-    // const deployedTaxableTX = await deployedTaxableTX.deployed();
+    deployedTaxableTX = await TaxableTX.deploy(owner.address, escrow.address, 1000, 10 ,"NewTax", "NTX");
   });
   
   it("Should assign the total supply of tokens to the owner", async function () {
@@ -41,20 +40,35 @@ describe("TaxableTX Tests", function () {
 
   })
 
-  // it("Should fail if sender doesn’t have enough tokens", async function () {
-  //   const initialOwnerBalance = await deployedTaxableTX.balanceOf(owner.address);
+  it("Should allow owner to send tokens from wallet1 to wallet2", async function () {
+    await deployedTaxableTX.transfer(addr1.address, 50);
+    const addr1Balance = await deployedTaxableTX.balanceOf(addr1.address);
+    expect(addr1Balance).to.equal(45);
+    
+    await deployedTaxableTX.transfer(addr2.address, 10);
+    const addr2Balance = await deployedTaxableTX.balanceOf(addr2.address);
+    expect(addr2Balance).to.equal(9);
+    
+    const initialAllowance = await deployedTaxableTX.allowance(addr1.address, owner.address);
+    expect(initialAllowance).to.equal(0);
+    
+    await deployedTaxableTX.connect(addr1).approve(owner.address, 100);
+    
+    const finalAllowance = await deployedTaxableTX.allowance(addr1.address, owner.address);
+    expect(finalAllowance).to.equal(100);
+    
+    await deployedTaxableTX.transferFrom(addr1.address, addr2.address, 20)
+    
+    const finalAllowance2 = await deployedTaxableTX.allowance(addr1.address, owner.address);
+    expect(finalAllowance2).to.equal(80);
+    const finalAddr2Balance = await deployedTaxableTX.balanceOf(addr2.address);
+    expect(finalAddr2Balance).to.equal(9+18);
+    const finalEscrowBalance = await deployedTaxableTX.balanceOf(escrow.address);
+    expect(finalEscrowBalance).to.equal(8);
 
-  //   // Try to send 1 token from addr1 (0 tokens) to owner (1000000 tokens).
-  //   // `require` will evaluate false and revert the transaction.
-  //   await expect(
-  //     deployedTaxableTX.connect(addr1).transfer(owner.address, 1)
-  //   ).to.be.revertedWith("Not enough tokens");
 
-  //   // Owner balance shouldn't have changed.
-  //   expect(await deployedTaxableTX.balanceOf(owner.address)).to.equal(
-  //     initialOwnerBalance
-  //   );
-  // });
+    
+  });
 
   describe("Run Through",function(){
     it("Should update balances after transfers", async function () {
@@ -81,19 +95,4 @@ describe("TaxableTX Tests", function () {
       expect(addr2Balance).to.equal(tx2*0.9);
     });
   });
-
-  // it("Should return the new greeting once it's changed", async function () {
-  //   const Greeter = await ethers.getContractFactory("Greeter");
-  //   const greeter = await Greeter.deploy("Hello, world!");
-  //   await greeter.deployed();
-
-  //   expect(await greeter.greet()).to.equal("Hello, world!");
-
-  //   const setGreetingTx = await greeter.setGreeting("Hola, mundo!");
-
-  //   // wait until the transaction is mined
-  //   await setGreetingTx.wait();
-
-  //   expect(await greeter.greet()).to.equal("Hola, mundo!");
-  // });
 });
