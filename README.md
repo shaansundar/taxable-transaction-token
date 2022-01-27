@@ -1,5 +1,24 @@
 # Advanced Sample Hardhat Project
 
+## Run & Test this program
+
+```bash
+npm install
+npx hardhat test test/TaxableTestTx.js
+```
+
+## Deploy
+
+Open two terminals, in one:
+```bash
+npx hardhat node
+```
+
+In another:
+```bash
+npx hardhat run scripts/deploy.js --network hardhat
+```
+
 This project demonstrates an advanced Hardhat use case, integrating other tools commonly used alongside Hardhat in the ecosystem.
 
 The project comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts. It also comes with a variety of other tools, preconfigured to work with the project code.
